@@ -1,7 +1,7 @@
 
 import socket
 
-UDP_IP = "192.168.43.255"
+UDP_IP = "0.0.0.0"
 UDP_PORT = 5005
 
 device_sensors = ['audio']
@@ -11,6 +11,7 @@ data_history = []
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((UDP_IP, UDP_PORT))
 
 #check if we have sensor and send data
@@ -28,7 +29,7 @@ def ed_respond(route, server):
 	
 	if sensor in device_sensors:
 		data = audio_sensor()
-		sock.sendto(data, (UDP_IP, UDP_PORT))
+		sock.sendto(data, ('192.168.56.255', UDP_PORT))
 		print("data sent")
 		
 	#if we don't have data, simply do nothing
