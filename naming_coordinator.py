@@ -19,6 +19,9 @@ class Naming:
     #to be populated as devices connect
     devices = []
 
+    #state variable for networking
+    networking = "idle"
+
 
     def serve_route(route):
         #location/time/semantic -> [location, time, semantic]
@@ -30,21 +33,40 @@ class Naming:
         return Naming.broadcast_request_and_receive(sub_routes)
 
 
-    def broadcast_request_and_receive(sub_routes):
-        for route in sub_routes:
-            #print(sub_routes) 
+    def collision_avoidance(route):
+        #broadcast route to all ED
+        sock.sendto(bytes(route, encoding='utf-8'), ('192.168.43.255', UDP_PORT))
 
-            # code to broadcast http request with subroute
-            sock.sendto(bytes(route, encoding='utf-8'), ('192.168.43.255', UDP_PORT))
+        chosen_ed = "none"
+        networking = "discovering"
 
-        # recieve data and return all output recieved
-        while True:
+        ed_response = "none"
+
+        #print(networking)
+
+        while (True):
+            #print(networking)
             data, addr = sock.recvfrom(1024)
             print(data)
-        # filter responses of the same topic (choose one)
 
-        #for testing
-        print(sub_routes) 
+            if (data == b"ready"): 
 
-#test usage:
+                sock.sendto(bytes('true', encoding='utf-8'), (str(addr[0]), UDP_PORT))
+                break
+
+        networking = "waiting for data"
+
+        while (networking == "waiting for data"):
+            data, addr = sock.recvfrom(1024)
+            
+            print(data)
+            networking == "discovering"
+        
+        
+
+
+    def broadcast_request_and_receive(sub_routes):
+        Naming.collision_avoidance('library/now/audio')
+            
+
 Naming.serve_route(sys.argv[1])
