@@ -29,7 +29,7 @@ def ed_respond(route, server):
 	
 	if sensor in device_sensors:
 		data = audio_sensor()
-		sock.sendto(data, ('192.168.56.255', UDP_PORT))
+		sock.sendto(data, ('192.168.43.255', UDP_PORT))
 		print("data sent")
 		
 	#if we don't have data, simply do nothing

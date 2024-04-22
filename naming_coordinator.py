@@ -32,8 +32,10 @@ class Naming:
 
     def broadcast_request_and_receive(sub_routes):
         for route in sub_routes:
+            #print(sub_routes) 
+
             # code to broadcast http request with subroute
-            sock.sendto(bytes(route, encoding='utf-8'), ('192.168.56.255', UDP_PORT))
+            sock.sendto(bytes(route, encoding='utf-8'), ('192.168.43.255', UDP_PORT))
 
         # recieve data and return all output recieved
         while True:
