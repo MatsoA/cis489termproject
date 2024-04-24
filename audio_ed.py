@@ -2,12 +2,13 @@
 import socket
 import time
 import random
+import select
 
 UDP_LISTEN = "0.0.0.0"
-BROADCAST_IP = '192.168.43.255'
+BROADCAST_IP = '192.168.137.255'
 UDP_PORT = 5005
 
-device_sensors = ['audio']
+device_sensors = ['audio', 'temperature']
 
 #TODO: store sensor history periodically 
 data_history = []
@@ -36,17 +37,21 @@ def ed_respond(route, server):
 		print(server[0], server[1])
 		sock.sendto(bytes("ready", encoding='utf-8'), (str(server[0]), server[1]))
 		
+		while (wait_for_CA == True):
+			
+			getData = select.select([sock], [], [], 5)
+			
+			if (getData[0]):
+				data, addr = sock.recvfrom(1024)
+				if (data == b"true"):
+					sock.sendto(audio_sensor(), (str(server[0]), UDP_PORT))
+				
+				wait_for_CA = False
+			#on timeout
+			if (getData[0] == []):
+				wait_for_CA = False
+		
 	#if we don't have data, simply do nothing
-	while (wait_for_CA == True):
-		data, addr = sock.recvfrom(1024)
-
-		print(data)
-
-		if (data == b"true"):
-			wait_for_CA = False
-	
-	sock.sendto(bytes("audio!!!", encoding='utf-8'), (str(server[0]), UDP_PORT))
-	print(wait_for_CA)
 
 	return
 	
@@ -54,11 +59,15 @@ def ed_respond(route, server):
 def audio_sensor():
 	#TODO: actually interface with audio sensor
 	
-	return b"audio!!"
+	return b"audio:-4"
+	
+def temp_sensor():
+	return b"temperature:-4"
 
 while True:
+	print('loop start')
 	time.sleep(random.random())
 	route, server = sock.recvfrom(1024)
 
 	ed_respond(route, server)
-
+	print('loop done')
