@@ -8,7 +8,19 @@ UDP_LISTEN = "0.0.0.0"
 BROADCAST_IP = '192.168.137.255'
 UDP_PORT = 5005
 
-device_sensors = ['audio', 'temperature']
+
+def audio_sensor():
+	#TODO: actually interface with audio sensor
+	
+	return b"audio:-4"
+	
+def temperature_sensor():
+	return b"temperature:30"
+
+device_sensors = {
+	'audio': audio_sensor,
+	'temperature': temperature_sensor
+}
 
 #TODO: store sensor history periodically 
 data_history = []
@@ -44,7 +56,7 @@ def ed_respond(route, server):
 			if (getData[0]):
 				data, addr = sock.recvfrom(1024)
 				if (data == b"true"):
-					sock.sendto(audio_sensor(), (str(server[0]), UDP_PORT))
+					sock.sendto(device_sensors[sensor](), (str(server[0]), UDP_PORT))
 				
 				wait_for_CA = False
 			#on timeout
@@ -56,13 +68,6 @@ def ed_respond(route, server):
 	return
 	
 
-def audio_sensor():
-	#TODO: actually interface with audio sensor
-	
-	return b"audio:-4"
-	
-def temp_sensor():
-	return b"temperature:-4"
 
 while True:
 	print('loop start')
