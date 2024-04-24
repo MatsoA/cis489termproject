@@ -1,6 +1,7 @@
 import sys
 import socket
-
+from datetime import datetime, timedelta
+import select
 UDP_IP = '0.0.0.0'
 UDP_PORT = 5005
 sock = socket.socket(socket.AF_INET,    
@@ -12,7 +13,7 @@ sock.bind((UDP_IP, UDP_PORT))
 
 class Naming:
     semantic_map = {
-        "studyable": ["audio", "video", "temperature"],
+        "studyable": ["video", "audio", "temperature"],
         "numPeople": ["video"]
     }
 
@@ -34,8 +35,10 @@ class Naming:
 
 
     def collision_avoidance(route):
+        location, time, sensor = route.split("/")
+
         #broadcast route to all ED
-        sock.sendto(bytes(route, encoding='utf-8'), ('192.168.43.255', UDP_PORT))
+        sock.sendto(bytes(route, encoding='utf-8'), ('192.168.137.255', UDP_PORT))
 
         chosen_ed = "none"
         networking = "discovering"
@@ -46,27 +49,55 @@ class Naming:
 
         while (True):
             #print(networking)
-            data, addr = sock.recvfrom(1024)
-            print(data)
 
-            if (data == b"ready"): 
+            found = select.select([sock], [], [], 5)
 
-                sock.sendto(bytes('true', encoding='utf-8'), (str(addr[0]), UDP_PORT))
-                break
+            if (found[0]): 
+                data, addr = sock.recvfrom(1024)
+                print("57, {}".format(data))
 
-        networking = "waiting for data"
+                if (data == b"ready"): 
+                    sock.sendto(bytes('true', encoding='utf-8'), (str(addr[0]), UDP_PORT))
+                    break
+            else:
+                return 'no device'
 
-        while (networking == "waiting for data"):
-            data, addr = sock.recvfrom(1024)
+        while (True):
+            print("waiting for data")
+            getData = select.select([sock], [], [], 15)
+
+            if (getData[0]):
+
+                response, addr = sock.recvfrom(1024)
+                
+                response = str(response, encoding='utf-8')
             
-            print(data)
-            networking == "discovering"
+                try:
+                    tag, data = response.split(':')
+                    if (str(tag) == sensor):
+                        return data
+                except:
+                    pass
+
+            print("data received?")        
+            
+            if (getData[0] == []):
+                return "no data"
+
+            
         
         
 
 
     def broadcast_request_and_receive(sub_routes):
-        Naming.collision_avoidance('library/now/audio')
+        output = {}
+
+        for route in sub_routes:
+            location, time, semantic = route.split('/')
+
+            output[semantic] = Naming.collision_avoidance(route)
+
+        return output
             
 
-Naming.serve_route(sys.argv[1])
+print(Naming.serve_route(sys.argv[1]))
