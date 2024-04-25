@@ -54,7 +54,7 @@ class Naming:
 
             if (found[0]): 
                 data, addr = sock.recvfrom(1024)
-                print("57, {}".format(data))
+                print(data)
 
                 if (data == b"ready"): 
                     sock.sendto(bytes('true', encoding='utf-8'), (str(addr[0]), UDP_PORT))
@@ -78,15 +78,11 @@ class Naming:
                         return data
                 except:
                     pass
-
-            print("data received?")        
             
             if (getData[0] == []):
                 return "no data"
 
             
-        
-        
 
 
     def broadcast_request_and_receive(sub_routes):
