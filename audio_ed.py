@@ -3,8 +3,10 @@ import socket
 import time
 import random
 import select
+
 from audio_data import audioReturn
 from temp_data import tempData
+
 UDP_LISTEN = "0.0.0.0"
 BROADCAST_IP = '192.168.137.255'
 UDP_PORT = 5005
@@ -54,6 +56,7 @@ def ed_respond(route, server):
 					sock.sendto(device_sensors[sensor](), (str(server[0]), UDP_PORT))
 				
 				wait_for_CA = False
+        
 			#on timeout
 			if (getData[0] == []):
 				wait_for_CA = False
