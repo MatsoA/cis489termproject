@@ -13,4 +13,3 @@ def tempData():
     
     return temp
 
-tempData()
