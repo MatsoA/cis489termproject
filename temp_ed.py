@@ -14,7 +14,7 @@ UDP_PORT = 5005
 
 
 device_sensors = {
-	'tempature' : tempData,
+	'temperature' : tempData,
 }
 
 #TODO: store sensor history periodically 
